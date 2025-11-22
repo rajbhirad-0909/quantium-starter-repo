@@ -1,37 +1,33 @@
 import pandas as pd
 import glob
-import os
 
-# Path to data folder
-data_path = "data/*.csv"
+# Read all CSV files inside data folder
+files = glob.glob("data/*.csv")
 
-# Read all three CSVs
-files = glob.glob(data_path)
-
-all_data = []
+df_list = []
 
 for file in files:
-    df = pd.read_csv(file)
+    temp = pd.read_csv(file)
 
-    # 1. Filter only Pink Morsels
-    df = df[df["product"] == "pink morsel"]
+    # Extract region from filename  (e.g., data/North.csv → north)
+    region = file.split("\\")[-1].split(".")[0].lower()
 
-    # 2. Create a sales column
-    df["sales"] = df["quantity"] * df["price"]
+    temp["region"] = region
 
-    # 3. Keep only required columns
-    df = df[["date", "region", "sales"]]
+    # Convert columns
+    temp["price"] = temp["price"].replace('[\$,]', '', regex=True).astype(float)
+    temp["quantity"] = temp["quantity"].astype(int)
 
-    all_data.append(df)
+    # Calculate sales
+    temp["sales"] = temp["price"] * temp["quantity"]
 
-# 4. Combine all datasets
-final_df = pd.concat(all_data, ignore_index=True)
+    df_list.append(temp)
 
-# 5. Ensure output folder exists
-os.makedirs("output", exist_ok=True)
+df = pd.concat(df_list)
 
-# 6. Save final combined file
-final_df.to_csv("output/processed_sales_data.csv", index=False)
+# Grouping for final clean output
+final = df.groupby(["date", "region"], as_index=False)["sales"].sum()
 
-print("🎉 Processing complete!")
-print("Saved to: output/processed_sales_data.csv")
+# Save clean file
+final.to_csv("processed_sales_data.csv", index=False)
+print("File processed successfully!")

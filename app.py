@@ -9,13 +9,13 @@ df = pd.read_csv("processed_data.csv")
 df["date"] = pd.to_datetime(df["date"], format="%d-%m-%Y")
 
 # Create Dash app
-app = Dash(__name__)
+dash_app = Dash(__name__)
 server = app.server   # IMPORTANT for deployment
 
 # ---------------------------
 # APP LAYOUT
 # ---------------------------
-app.layout = html.Div(
+dash_app.layout = html.Div(
     style={
         "backgroundColor": "#f5f7fa",
         "fontFamily": "Arial",
@@ -57,7 +57,7 @@ app.layout = html.Div(
 # ---------------------------
 # CALLBACK FOR INTERACTIVITY
 # ---------------------------
-@app.callback(
+@dash_app.callback(
     Output("sales-graph", "figure"),
     Input("region-filter", "value")
 )
@@ -92,7 +92,67 @@ def update_graph(selected_region):
 # Run App
 # ---------------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    dash_app.run(debug=True)
+
+dash_app.layout = html.Div([
+
+    html.H1(
+        "Pink Morsel Sales Visualizer",
+        id="header",
+        style={
+            "textAlign": "center",
+            "color": "#d1008f",
+            "paddingTop": "20px",
+        }
+    ),
+
+    html.Div([
+        html.Label("Filter by Region:", style={"fontWeight": "bold"}),
+        dcc.RadioItems(
+            id="region-picker",
+            options=[
+                {"label": "All", "value": "all"},
+                {"label": "North", "value": "north"},
+                {"label": "East", "value": "east"},
+                {"label": "South", "value": "south"},
+                {"label": "West", "value": "west"},
+            ],
+            value="all",
+            inline=True
+        )
+    ], style={"textAlign": "center", "padding": "20px"}),
+
+    dcc.Graph(id="sales-graph")
+])
+dash_app.layout = html.Div([
+    html.H1(
+        "Pink Morsel Sales Visualizer",
+        id="header",
+        style={
+            "textAlign": "center",
+            "color": "#d1008f",
+            "paddingTop": "20px",
+        }
+    ),
+
+    html.Div([
+        html.Label("Filter by Region:", style={"fontWeight": "bold"}),
+        dcc.RadioItems(
+            id="region-picker",
+            options=[
+                {"label": "All", "value": "all"},
+                {"label": "North", "value": "north"},
+                {"label": "East", "value": "east"},
+                {"label": "South", "value": "south"},
+                {"label": "West", "value": "west"},
+            ],
+            value="all",
+            inline=True
+        )
+    ], style={"textAlign": "center", "padding": "20px"}),
+
+    dcc.Graph(id="sales-graph")
+])
 
 
 
